@@ -1,6 +1,6 @@
 # Wieland — Agent Operating Manual
 
-You are working on **Wieland**: a framework that keeps one canonical corpus of coding rules per language (Rust, TypeScript, Go next) and forges it into every coding-agent format (Claude skill, Cursor rules, AGENTS.md, Copilot, MCP server, HTTPS endpoint, git hooks) plus a gate that blocks violations. Tagline: *the smith-god for code written by LLMs.*
+You are working on **Wieland**: a framework that keeps one canonical corpus of coding rules per language (Rust, TypeScript, Go next) and forges it into every coding-agent format (Claude skill, Cursor rules, AGENTS.md, Copilot, MCP server, HTTPS endpoint, git hooks) plus a gate that blocks violations. Tagline: *rule corpus and gate for Rust, TypeScript and Go.*
 
 This file is your contract. Read it fully before touching anything. Then read `spec/ARCHITECTURE.md` and `spec/ENFORCEMENT.md`. Then work the plan.
 

@@ -6,7 +6,7 @@
 file and answers in the agent's own format. A git `pre-commit` hook is the backstop for anything
 that edits code without a hook: other agents, editors, people.
 
-| Agent | Config file | Event | How findings reach the model | Template |
+| Agent | Config file | Event | Reply | Template |
 |---|---|---|---|---|
 | Claude Code | `~/.claude/settings.json` or `.claude/settings.json` | `PostToolUse` on `Edit\|Write\|MultiEdit` | stderr, exit 2 | `claude-code/settings.json` |
 | Codex CLI | `~/.codex/hooks.json` or `.codex/hooks.json` | `PostToolUse` on `apply_patch\|Edit\|Write` | stderr, exit 2; paths read from the patch text | `codex/hooks.json` |

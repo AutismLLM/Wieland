@@ -260,7 +260,7 @@ impl Wieland {
 impl ServerHandler for Wieland {
     fn get_info(&self) -> ServerInfo {
         ServerInfo::new(ServerCapabilities::builder().enable_tools().build()).with_instructions(
-            "Wieland — canonical Rust-for-LLM coding rules. Tools: version, categories, core, lookup, explain, review. The corpus is the single source of truth; version reports its content hash.",
+            "Wieland — canonical Rust coding rules. Tools: version, categories, core, lookup, explain, review. The corpus is the single source of truth; version reports its content hash.",
         )
     }
 }

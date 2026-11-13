@@ -15,19 +15,19 @@ fn skill_text(language: Language) -> SkillText {
     match language {
         Language::Rust => SkillText {
             name: "wieland-rust",
-            description: "Rust-for-LLM coding rules — ownership, errors, unsafe, async, API design. Load a rule file from rules/ by id for detail.",
+            description: "Rust coding rules — ownership, errors, unsafe, async, API design. Load a rule file from rules/ by id for detail.",
             heading: "# Wieland — Rust rules",
             intro: "Canonical Rust coding rules.",
         },
         Language::Typescript => SkillText {
             name: "wieland-typescript",
-            description: "TypeScript 7 coding rules for LLM-written code — promises, unions, any and casts, untrusted input, strict tsconfig, erasable syntax. Load a rule file from rules/ by id for detail.",
+            description: "TypeScript 7 coding rules — promises, unions, any and casts, untrusted input, strict tsconfig, erasable syntax. Load a rule file from rules/ by id for detail.",
             heading: "# Wieland — TypeScript rules",
             intro: "Canonical TypeScript 7 coding rules.",
         },
         Language::Go => SkillText {
             name: "wieland-go",
-            description: "Go coding rules for LLM-written code — errors, context, goroutines and channels, resources, interfaces. Load a rule file from rules/ by id for detail.",
+            description: "Go coding rules — errors, context, goroutines and channels, resources, interfaces. Load a rule file from rules/ by id for detail.",
             heading: "# Wieland — Go rules",
             intro: "Canonical Go coding rules.",
         },

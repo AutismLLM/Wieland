@@ -1,60 +1,56 @@
 # Wieland
 
-**Coding rules for code written by LLMs, with a gate that enforces them.**
+Rule corpus and gate for Rust, TypeScript and Go.
 
-Wieland keeps one rule corpus per language (Rust, TypeScript, Go) as plain Markdown files and
-compiles it into what coding agents read: a Claude Code skill, a compact always-on core, and a
-linter configuration. The same corpus drives a gate that runs after every edit an agent makes, in
-Claude Code, Codex, Cursor, Gemini CLI or Pi, and before every commit.
+Each rule is one Markdown file with YAML frontmatter. The corpus compiles into a skill file, a short
+always-on core and a linter configuration, and the same corpus drives a gate that runs after every
+file edit and before every commit.
 
-The idea: do not prompt what a machine can check. Each rule says how far a machine can take it:
+Every rule declares how far a tool can enforce it:
 
-| Class | Meaning | Delivered as |
+| Class | Detector | Effect |
 |---|---|---|
-| `gate` | a reliable detector exists | blocks the edit or commit |
-| `check` | detectable but noisy | printed as advice |
-| `judge` | design taste, no detector | prompt only (skill and core) |
+| `gate` | a reliable linter rule or compiler option | blocks the edit or commit |
+| `check` | a linter rule with false positives | printed as advice |
+| `judge` | none | documented in the skill only |
 | `compiler` | the compiler already rejects it | usually not a rule |
 
-So the prompt stays small, the gate stays strict, and the full corpus is there to look things up.
+## Packs
 
-## What is in it
-
-| Pack | Rules | Detectors (pinned) | Manifest |
+| Pack | Rules | Detectors (pinned) | Project root |
 |---|---|---|---|
 | Rust | 311 | `cargo clippy` | `Cargo.toml` |
-| TypeScript 7 | 20 | `tsc` with required strict flags, `oxlint` type-aware | `tsconfig.json` |
+| TypeScript 7 | 20 | `tsc` 7.0.2 with required strict flags, `oxlint` 1.93.0 type-aware | `tsconfig.json` |
 | Go 1.26 | 20 | `golangci-lint` v2.15.0 | `go.mod` |
 
 The Rust pack merges [leonardomso/rust-skills](https://github.com/leonardomso/rust-skills) and
 [microsoft/rust-guidelines](https://github.com/microsoft/rust-guidelines) (both MIT, sources in
-`vendor/`). The TypeScript and Go packs are original. Two version skills,
-`typescript-7-patch-notes` and `go-1-26-patch-notes`, cover what changed since most models were
-trained.
+`vendor/`). The TypeScript and Go packs are original. `skills/` holds two version notes,
+`typescript-7-patch-notes` and `go-1-26-patch-notes`, covering what changed in those releases.
 
-## Quick start
+Status: all three packs compile, gate and pass CI. Version 0.x, corpus tag
+`wieland-corpus-90377841a0af`.
 
-Requirements: Rust (stable), and for the other packs Node 22+ with npm, and Go 1.26.
+## Install
+
+Requires Rust stable; Node 22+ with npm for TypeScript; Go 1.26 for Go.
 
 ```sh
 git clone https://github.com/Beemindapp/Wieland
 cd Wieland
-bash ci/install.sh        # wieland on PATH, corpus in ~/.wieland, pinned tools, Claude skills
-bash ci/check.sh          # the full test gate
+bash ci/install.sh   # binaries to ~/.cargo/bin, corpus to ~/.wieland/rules, pinned tools to ~/.wieland/tools
+bash ci/check.sh     # full test suite
 ```
 
-Gate a project by hand:
+## Use
 
 ```sh
-cd your-project
-wieland gate --all        # picks the language from the nearest Cargo.toml / tsconfig.json / go.mod
-wieland gate --staged     # staged files only, grouped per project (works in monorepos)
+wieland gate --all       # language from the nearest Cargo.toml, tsconfig.json or go.mod
+wieland gate --staged    # staged files, grouped per project root (monorepos work)
+wieland gate --file src/app.ts
 ```
 
-Hook it into your agent: see [`hooks/README.md`](hooks/README.md) for Claude Code, Codex, Cursor,
-Gemini CLI, Pi and a git `pre-commit` hook.
-
-A blocked edit looks like this:
+Output on a violation, exit code 1:
 
 ```
 src/bad.ts:34: [async-no-floating-promise] Await, return or explicitly void every promise
@@ -62,35 +58,64 @@ src/bad.ts:34: [async-no-floating-promise] Await, return or explicitly void ever
 gate: 1 violation(s)
 ```
 
+Only findings in the edited file block an edit. Project-level findings (a missing compiler option)
+block `gate --all`, the pre-commit hook and CI.
+
+## Editor and agent hooks
+
+`wieland hook` reads the hook payload on stdin, gates the edited file and answers in the caller's
+format. Templates and payload details are in [`hooks/README.md`](hooks/README.md).
+
+| Caller | Event | Reply |
+|---|---|---|
+| Claude Code | `PostToolUse` | stderr, exit 2 |
+| Codex CLI | `PostToolUse` (`apply_patch`) | stderr, exit 2 |
+| Cursor | `postToolUse` | `additional_context` JSON |
+| Gemini CLI | `AfterTool` | `additionalContext` JSON |
+| Pi | `tool_result` extension | appended to the tool result |
+| git | `pre-commit` | blocks the commit |
+
 ## Commands
 
 ```
-wieland validate [dir]            schema-check a pack (rules, rules/typescript, rules/go)
-wieland compile --all [--check]   build dist/ for every pack; --check fails if dist/ is stale
+wieland validate [dir]                     schema-check a pack (rules, rules/typescript, rules/go)
+wieland compile --all [--check]            build dist/ for every pack; --check fails on drift
 wieland gate [--all|--staged|--changed|--file <paths>]
 wieland hook [--agent claude|codex|cursor|gemini|pi] [--path <file>]
-wieland check-detectors           every detector named in the corpus exists in the pinned tools
-wieland check-examples [--pack rust|typescript|go]   every Do example compiles
-wieland install                   copy the corpus to ~/.wieland/rules
+wieland check-detectors                    every detector in the corpus exists in the pinned tools
+wieland check-examples [--pack rust|typescript|go]
+wieland install                            copy the corpus to ~/.wieland/rules
 ```
 
-`wieland-mcp` serves the Rust corpus over MCP (stdio) and plain HTTP.
+`wieland-mcp` serves the Rust corpus over MCP (stdio) and HTTP.
+
+## CI guarantees
+
+- Every `gate` rule names a detector that exists: oxlint rejects an unknown rule in the compiled
+  config, `tsc` rejects an unknown option (TS5023), golangci-lint rejects an unknown linter.
+- The compiled oxlint config turns every built-in category off, so only corpus rules run.
+- Every `Do` example compiles: Rust via `cargo check`, TypeScript via `tsc` under the pack's flags,
+  Go via `go vet`.
+- `compile --all --check` fails when `dist/` is stale; the Rust artifacts are byte-stable.
+- Bad and good fixtures per language prove the gate and the hook block and pass as expected.
 
 ## Writing a rule
 
-A rule is one Markdown file with YAML frontmatter (`spec/schema/rule.schema.yaml`) and four
-sections: `## Rule`, `## Why`, `## Do`, `## Don't`. A `gate` rule must name a real detector, and
-every `Do` example must compile under the pack's settings; CI checks both. See
-[`CONTRIBUTING.md`](CONTRIBUTING.md).
+Frontmatter follows `spec/schema/rule.schema.yaml`; the body has `## Rule`, `## Why`, `## Do` and
+`## Don't`. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Layout
 
 ```
-rules/            Rust pack; rules/typescript/ and rules/go/ are the other packs
+rules/            Rust pack; rules/typescript/ and rules/go/
 spec/             schema, taxonomies, enforcement and hook specs
 crates/           wieland-core (model, validate, compile), wieland-cli, wieland-mcp
 tools/typescript/ exact pins of tsc, oxlint, oxlint-tsgolint
-skills/           version patch-notes skills
-hooks/            agent and git hook templates
-ci/               check.sh, check-examples.sh, install.sh, gate fixtures
+skills/           version notes for TypeScript 7 and Go 1.26
+hooks/            hook templates
+ci/               check.sh, check-examples.sh, install.sh, publish-public.sh, fixtures
 ```
+
+## Licence
+
+MIT.
