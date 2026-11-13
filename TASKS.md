@@ -186,6 +186,6 @@ Plan: `spec/GO-STACK.md`.
 - [x] **3. Fresh clone passes CI.**
       *Done when:* `git clone` + `ci/check.sh` green. — verified (with the pinned tools already in ~/.wieland; check.sh compiles dist/ once on a fresh clone).
 - [x] **4. Licence (owner).** MIT, owner yes 2026-11-13. — `LICENSE`, `license = "MIT"` in the workspace.
-- [ ] **5. History for the public repo (owner).** Proposed: one fresh commit on the public remote, full history kept on the private one.
+- [x] **5. History for the public repo (owner).** Owner yes 2026-11-13. — the public remote now holds one commit (7baa841, current tree, tag `wieland-corpus-90377841a0af` moved onto it); full history stays on `origin`; later syncs go through `ci/publish-public.sh`.
 - [ ] **6. GitHub Actions CI on push.**
 - [ ] **7. Make Beemindapp/Wieland public (owner yes).**
