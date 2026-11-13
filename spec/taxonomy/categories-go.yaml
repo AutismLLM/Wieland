@@ -1,0 +1,36 @@
+# Wieland category namespace for the Go pack (rules/go/).
+# Every Go rule's `category` MUST be one `key` below; `prefix` is its id namespace.
+
+version: 1
+
+categories:
+  - key: errors
+    prefix: err
+    summary: "Error values: checked, wrapped with %w, compared with errors.Is/As, never dropped."
+  - key: concurrency
+    prefix: conc
+    summary: "Goroutines, channels, mutexes, WaitGroup: who owns, who closes, who stops."
+  - key: context
+    prefix: ctx
+    summary: "context.Context: first parameter, cancelled, never stored, never nil."
+  - key: types
+    prefix: type
+    summary: "Types and interfaces: small interfaces, accept interfaces return structs, zero values that work."
+  - key: api-design
+    prefix: api
+    summary: "Package surface: names, exported identifiers, constructors, options."
+  - key: resources
+    prefix: res
+    summary: "Things that must be closed or released: bodies, files, rows, tickers, timers."
+  - key: testing
+    prefix: test
+    summary: "Tests: table-driven, t.Helper, t.Cleanup, no sleeps for synchronisation."
+  - key: performance
+    prefix: perf
+    summary: "Allocation and copying that matter on hot paths."
+  - key: anti-patterns
+    prefix: anti
+    summary: "Things to stop doing that compile fine but hurt later."
+  - key: design
+    prefix: design
+    summary: "Shape of code: abstractions that earn their cost, packages by responsibility."

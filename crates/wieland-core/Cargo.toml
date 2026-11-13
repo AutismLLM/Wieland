@@ -1,0 +1,10 @@
+[package]
+name = "wieland-core"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_yaml_ng = { workspace = true }
+sha2 = { workspace = true }

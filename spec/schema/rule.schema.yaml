@@ -1,0 +1,151 @@
+# Wieland canonical rule schema.
+# Every file in rules/*.md (Rust), rules/typescript/*.md and rules/go/*.md carries YAML frontmatter validated against this.
+# Prose body is for humans; this frontmatter is machine-truth (compilers, MCP, hooks read it).
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "wieland/schema/rule"
+title: "Wieland Rule"
+type: object
+additionalProperties: false
+required: [id, title, category, severity, tier, enforceability, sources, status]
+properties:
+
+  id:
+    type: string
+    description: "Stable, unique, namespace-prefixed kebab id. Never renamed once stable."
+    pattern: "^[a-z]+-[a-z0-9-]+$"     # e.g. mem-with-capacity, async-no-lock-await
+
+  title:
+    type: string
+    description: "Imperative one-liner. The rule as a headline."
+    maxLength: 90
+
+  category:
+    type: string
+    description: "One value from taxonomy/categories.yaml."
+
+  severity:
+    type: string
+    enum: [info, warn, deny]
+    description: "Maps to lint level / enforcement weight. deny = tier-0 candidate."
+
+  tier:
+    type: integer
+    enum: [0, 1, 2, 3]
+    description: "Delivery pressure (a DECISION): 0 always-on core | 1 on-demand | 2 machine-checked | 3 hook/CI-enforced."
+
+  enforceability:
+    type: string
+    enum: [compiler, gate, check, judge]
+    description: >
+      Mechanical ceiling (a PROPERTY of the rule, not a choice).
+      compiler = rustc already enforces it (rarely a rule at all).
+      gate = a reliable clippy/ast/config detector exists → tier-3 eligible, can hard-block.
+      check = detectable but noisy/contextual → tier-2 max, advise never block.
+      judge = no mechanical detector, design taste → prompt/human only, tier 0/1 by importance.
+      Invariant (checked by `wieland validate`): enforceability=gate REQUIRES the language's gate
+      detector (Rust: detect.clippy; TypeScript: detect.oxlint or detect.tsconfig; Go: detect.golangci); and ANY rule at tier 2 or 3 REQUIRES a non-empty detect{} —
+      you cannot machine-check or gate what has no detector. tier is chosen from
+      enforceability x frequency (see ENFORCEMENT.md).
+
+  tags:
+    type: array
+    items: { type: string }
+    description: "Free-form facets for retrieval: performance, safety, api, async, memory."
+
+  applies_to:
+    type: array
+    items: { type: string }
+    description: "Retrieval hints: symbols, patterns, or situations that should surface this rule."
+
+  language:
+    type: string
+    enum: [rust, typescript, go]
+    default: rust
+    description: >
+      The pack this rule belongs to. Decides the taxonomy file, the version field and which
+      detectors are allowed: a rule may only carry its own language's detectors.
+
+  ts_version:
+    type: [string, "null"]
+    pattern: "^[0-9]+\\.[0-9]+$"
+    description: "TypeScript MAJOR.MINOR the rule was written against. Required when language=typescript."
+
+  go_version:
+    type: [string, "null"]
+    pattern: "^[0-9]+\\.[0-9]+$"
+    description: "Go MAJOR.MINOR the rule was written against. Required when language=go."
+
+  rust_edition:
+    type: string
+    enum: ["2015", "2018", "2021", "2024"]
+    default: "2024"
+
+  msrv:
+    type: [string, "null"]
+    description: "Minimum supported Rust version if the advice is version-gated. null = any."
+    default: null
+
+  reviewed:
+    type: string
+    description: >
+      ISO date the rule was last checked against current Rust (edition/lints/APIs).
+      Rust ships every 6 weeks with no LTS, so advice ages: the compiler warns on rules
+      not reviewed within N releases. Freshness needs a mechanism, not just rust_edition.
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+
+  detect:
+    type: object
+    additionalProperties: false
+    description: "Machine detectors. Presence of any enables tier>=2. All optional."
+    properties:
+      clippy:
+        type: array
+        items: { type: string }
+        description: "Clippy lint names that enforce this rule. Rust only."
+      oxlint:
+        type: array
+        items: { type: string }
+        description: "oxlint rule names, e.g. typescript/no-floating-promises. TypeScript only."
+      tsconfig:
+        type: array
+        items: { type: string }
+        description: "Compiler options that must resolve to true (tsc --showConfig). TypeScript only."
+      golangci:
+        type: array
+        items: { type: string }
+        description: "golangci-lint linter names, e.g. errcheck. Go only."
+      grep:
+        type: array
+        items: { type: string }
+        description: "Cheap regex heuristics (may false-positive; advisory only)."
+      ast_query:
+        type: [string, "null"]
+        description: "ast-grep / semgrep pattern for precise structural match. Future."
+
+  autofix:
+    type: boolean
+    default: false
+    description: "True if a tool (clippy --fix, rustfmt, custom) can apply the fix."
+
+  sources:
+    type: array
+    minItems: 1
+    items: { type: string }
+    description: "Provenance. Format: 'owner/repo#original-id' or 'wieland' for originals."
+
+  supersedes:
+    type: array
+    items: { type: string }
+    description: "Ids of rules this one replaces (merge de-duplication trail)."
+
+  status:
+    type: string
+    enum: [draft, stable, deprecated]
+    default: draft
+
+# ---- Body convention (not schema-enforced, but the compiler expects these H2 sections) ----
+# ## Rule    one-sentence imperative statement
+# ## Why     the cost / reasoning
+# ## Do      ```rust / ```ts / ```go  good example
+# ## Don't   ```rust / ```ts / ```go  bad example
+# ## Notes   exceptions, when NOT to apply  (optional)

@@ -1,0 +1,34 @@
+# Wieland category namespace for the TypeScript pack (rules/typescript/).
+# Every TypeScript rule's `category` MUST be one `key` below; `prefix` is its id namespace.
+# The Rust categories (categories.yaml) are not reused here.
+
+version: 1
+
+categories:
+  - key: types
+    prefix: type
+    summary: "Type-level correctness: no any, no non-null assertions, exhaustive unions, honest casts."
+  - key: async
+    prefix: async
+    summary: "Promises: none left floating, none passed where a sync callback is expected, await only thenables."
+  - key: errors
+    prefix: err
+    summary: "Error values: what gets thrown, caught, stringified and swallowed."
+  - key: boundaries
+    prefix: bound
+    summary: "Untrusted input (JSON, fetch, storage, URL, postMessage) is unknown until checked at the edge."
+  - key: modules
+    prefix: mod
+    summary: "Imports and exports: type-only imports, module syntax, no side-effect surprises."
+  - key: config
+    prefix: cfg
+    summary: "Compiler configuration and suppressions: required strict flags, no @ts-ignore."
+  - key: syntax
+    prefix: syn
+    summary: "Language features to use or avoid under erasable-syntax TypeScript 7."
+  - key: anti-patterns
+    prefix: anti
+    summary: "Things to stop doing that compile fine but hurt later."
+  - key: design
+    prefix: design
+    summary: "Shape of code: abstractions that earn their cost, data over flags."

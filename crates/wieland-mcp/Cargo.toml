@@ -1,0 +1,19 @@
+[package]
+name = "wieland-mcp"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "wieland-mcp"
+path = "src/main.rs"
+
+[dependencies]
+wieland-core = { path = "../wieland-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+rmcp = { version = "2.2.0", features = ["server", "macros", "transport-io", "schemars"] }
+tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "io-std"] }
+regex = "1.13.0"
+schemars = "1.2.1"
+tiny_http = "0.12.0"

@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "AfterTool": [
+      {
+        "matcher": "write_file|replace",
+        "hooks": [
+          { "name": "wieland", "type": "command", "command": "wieland hook --agent gemini" }
+        ]
+      }
+    ]
+  }
+}

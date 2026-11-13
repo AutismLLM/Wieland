@@ -1,0 +1,89 @@
+# Wieland category namespace.
+# Derived from leonardomso/rust-skills' 26 id-prefixes, normalized and back-filled
+# with Microsoft rust-guidelines dimensions. Every rule's `category` MUST be one `key` below.
+# `prefix` is the mandatory id namespace for rules in that category.
+
+version: 1
+
+categories:
+  - key: anti-patterns
+    prefix: anti
+    summary: "Things to stop doing: excessive clone, unwrap abuse, stringly-typed, lock-across-await."
+  - key: api-design
+    prefix: api
+    summary: "Public surface shape: builders, newtypes, sealed traits, parse-don't-validate, must_use."
+  - key: async
+    prefix: async
+    summary: "Tokio patterns: cancellation, bounded channels, structured concurrency, no lock across await."
+  - key: closures
+    prefix: closure
+    summary: "Fn/FnMut/FnOnce bounds, move capture, impl Fn returns, static vs dyn dispatch."
+  - key: collections
+    prefix: coll
+    summary: "Choosing the right container: map/set/seq/heap by access pattern."
+  - key: concurrency
+    prefix: conc
+    summary: "Threads: atomics ordering, rayon, scoped threads, thread-local."
+  - key: const-eval
+    prefix: const
+    summary: "const fn, const generics, const blocks, const vs static."
+  - key: conversions
+    prefix: conv
+    summary: "From/TryFrom/FromStr/AsRef/AsMut — fallible and infallible conversion idioms."
+  - key: docs
+    prefix: doc
+    summary: "Rustdoc discipline: examples, errors/panics/safety sections, intra-doc links."
+  - key: errors
+    prefix: err
+    summary: "thiserror for libs, anyhow for apps, ? propagation, context chains, no unwrap in prod."
+  - key: lints
+    prefix: lint
+    summary: "Clippy/rustfmt config, deny correctness, pedantic selection, workspace lints."
+  - key: macros
+    prefix: macro
+    summary: "macro_rules hygiene, proc-macro two-crate layout, error spans, prefer functions."
+  - key: memory
+    prefix: mem
+    summary: "Allocation discipline: with_capacity, smallvec, boxed slices, take/replace, zero-copy."
+  - key: naming
+    prefix: name
+    summary: "Casing, is/has bools, iter conventions, into/to/as ownership signals, no get_ prefix."
+  - key: numerics
+    prefix: num
+    summary: "Overflow handling, NonZero, saturating/clamp, float compare, checked casts."
+  - key: observability
+    prefix: obs
+    summary: "tracing over log, structured fields, spans, level filtering, no sensitive data."
+  - key: optimization
+    prefix: opt
+    summary: "Codegen: LTO, target-cpu, inline hints, cold/likely, PGO, portable SIMD."
+  - key: ownership
+    prefix: own
+    summary: "Borrow over clone, Cow, Arc/Rc, interior mutability, slice over Vec, move large."
+  - key: patterns
+    prefix: pat
+    summary: "let-else, if-let chains, matches! macro, @ bindings, exhaustive enums."
+  - key: performance
+    prefix: perf
+    summary: "Runtime speed: entry API, lazy iterators, buffered IO, collect-once, batch extend."
+  - key: project-layout
+    prefix: proj
+    summary: "Workspace deps, lib/main split, feature additivity, module-by-feature, MSRV declaration."
+  - key: serde
+    prefix: serde
+    summary: "rename_all, deny_unknown_fields, enum representation, try_from validation, skip empty."
+  - key: testing
+    prefix: test
+    summary: "AAA structure, proptest, criterion, loom, snapshot, doctests, mockall."
+  - key: traits
+    prefix: trait
+    summary: "dyn vs generic, object safety, blanket impls, associated type vs generic, coherence."
+  - key: types
+    prefix: type
+    summary: "Newtype ids, typestate, phantom markers, Option for nullable, never/diverging, repr."
+  - key: unsafe
+    prefix: unsafe
+    summary: "Minimize scope, safety comments, MaybeUninit, manual Send/Sync, miri in CI."
+
+# Cross-cutting tags (not categories) live in each rule's `tags:` and are free-form:
+#   performance, safety, correctness, api, ergonomics, allocation, hot-path, security

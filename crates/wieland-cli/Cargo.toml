@@ -1,0 +1,13 @@
+[package]
+name = "wieland-cli"
+edition.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "wieland"
+path = "src/main.rs"
+
+[dependencies]
+wieland-core = { path = "../wieland-core" }
+serde_json = { workspace = true }

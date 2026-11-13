@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+# Wieland pre-commit gate.
+#
+# Runs `wieland gate --staged`: groups the staged Rust, TypeScript and Go
+# files by their project (Cargo.toml, tsconfig.json, go.mod), runs each
+# language's gate and blocks the commit if a deny rule trips in a staged
+# file. Works in monorepos with no manifest at the root. See spec/hooks/SPEC.md.
+#
+# Bypass (use sparingly, e.g. a WIP commit): git commit --no-verify
+#
+# Binary resolution: PATH by default, override with WIELAND_BIN=/path/to/wieland.
+# Rule-corpus resolution (WIELAND_RULES env var, else ./rules) is the
+# binary's own job -- this hook only nudges WIELAND_RULES toward the repo
+# root so it still resolves if git ever runs the hook from an odd cwd.
+
+set -eu
+
+WIELAND_BIN="${WIELAND_BIN:-wieland}"
+
+if ! command -v "$WIELAND_BIN" >/dev/null 2>&1; then
+    echo "pre-commit: '$WIELAND_BIN' not found on PATH (set WIELAND_BIN to override)" >&2
+    echo "pre-commit: cannot run the gate -- install wieland or bypass with: git commit --no-verify" >&2
+    exit 1
+fi
+
+if [ -z "${WIELAND_RULES:-}" ]; then
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+    if [ -n "$repo_root" ] && [ -d "$repo_root/rules" ]; then
+        WIELAND_RULES="$repo_root/rules"
+        export WIELAND_RULES
+    fi
+fi
+
+echo "pre-commit: running 'wieland gate --staged' (bypass with: git commit --no-verify)"
+
+if "$WIELAND_BIN" gate --staged; then
+    exit 0
+fi
+
+echo "pre-commit: blocked -- fix the id + why + fix above, or bypass with: git commit --no-verify" >&2
+exit 1

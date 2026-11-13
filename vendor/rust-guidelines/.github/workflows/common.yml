@@ -1,0 +1,53 @@
+name: Common Steps
+
+on:
+  workflow_call:
+
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Install mdBook
+      run: |
+        mkdir -p ~/.local/bin
+        curl -L https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar xz -C ~/.local/bin
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Linting Markdown Files
+      uses: DavidAnson/markdownlint-cli2-action@v20
+      with:
+        globs: '**/*.md'
+
+    - name: Preprocess
+      run: |
+        chmod +x ./scripts/*.sh
+        bash ./scripts/agents_summary.sh
+        bash ./scripts/agents_meta.sh
+        bash ./scripts/build_date.sh
+
+    - name: MdBook Test
+      run: |
+        mdbook test
+
+    - name: Install mdbook-linkcheck
+      run: |
+        mkdir -p mdbook-linkcheck
+        curl -L https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/download/v0.7.7/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip -o mdbook-linkcheck/mdbook-linkcheck.zip
+        unzip -d ./mdbook-linkcheck mdbook-linkcheck/mdbook-linkcheck.zip
+        chmod +x mdbook-linkcheck/mdbook-linkcheck
+        echo `pwd`/mdbook-linkcheck >> $GITHUB_PATH
+
+    - name: Build
+      run: mdbook build
+
+    - name: Store Book Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: book
+        path: book
