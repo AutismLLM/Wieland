@@ -171,7 +171,7 @@ Plan: `spec/GO-STACK.md`.
 - [x] **5. Templates and docs.** `hooks/{claude-code,codex,cursor,gemini,pi}`, `hooks/README.md`, `spec/hooks/SPEC.md`.
       *Done when:* each agent has a template and the README states what was verified live. — verified.
 - [ ] **6. Live run per agent.** Codex, Cursor, Gemini CLI and Pi installed and a bad edit blocked in a scratch project.
-      *Done when:* each agent shows the block live. — open: none of the four is installed on the build machine.
+      *Done when:* each agent shows the block live. — Pi: done 2026-11-13 as an embedded harness: the host app creates Pi sessions with `noExtensions: true`, so the gate is registered as an extension factory in the host (on `tool_result` for edit/write, runs `wieland hook --agent pi --path`, fail open; finds `~/.cargo/bin/wieland` and adds cargo/go to PATH itself), deployed, verified under the service's bare environment. Open: Codex, Cursor, Gemini CLI are not installed.
 - [x] **7. Wire this machine (owner go-ahead).** New `wieland` binary on PATH (turns on TypeScript and Go gating in the global Claude Code hook), pre-commit in the owner's repos.
       *Done when:* the owner has said yes and a bad edit is blocked in a real project. — verified 2026-11-13: owner yes; `ci/install.sh` (install now copies the TypeScript and Go packs too); the global hook command on a real TypeScript project: a file with a non-null assertion → exit 2 with the rule id, a clean file → exit 0 with advice only. Pre-commit in the owner's repos not installed yet.
 

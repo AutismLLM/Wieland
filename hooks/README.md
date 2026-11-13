@@ -12,7 +12,7 @@ that edits code without a hook: other agents, editors, people.
 | Codex CLI | `~/.codex/hooks.json` or `.codex/hooks.json` | `PostToolUse` on `apply_patch\|Edit\|Write` | stderr, exit 2; paths read from the patch text | `codex/hooks.json` |
 | Cursor | `~/.cursor/hooks.json` or `.cursor/hooks.json` | `postToolUse` | `{"additional_context": …}` on stdout | `cursor/hooks.json` |
 | Gemini CLI | `~/.gemini/settings.json` or `.gemini/settings.json` | `AfterTool` on `write_file\|replace` | `hookSpecificOutput.additionalContext`; `{}` when quiet | `gemini/settings.json` |
-| Pi | `~/.pi/agent/extensions/` or `.pi/extensions/` | `tool_result` for `edit`/`write` | appended to the tool result, `isError` on a block | `pi/wieland.ts` |
+| Pi | `~/.pi/agent/extensions/` or `.pi/extensions/`; an app embedding Pi with `noExtensions: true` registers the same handler as an `extensionFactories` entry | `tool_result` for `edit`/`write` | appended to the tool result, `isError` on a block | `pi/wieland.ts` |
 | anything else | `.git/hooks/pre-commit` | commit | blocks the commit | `pre-commit` |
 
 `wieland hook --agent <claude|codex|cursor|gemini|pi>` selects the reply format; `--path <file>`
@@ -43,8 +43,8 @@ gates a file without reading hook JSON (the Pi extension uses it). Input is read
 `ci/check.sh` feeds each adapter the payload its documentation describes (Claude Code, Codex
 `apply_patch`, Cursor `postToolUse` with a string `tool_input`, Gemini `AfterTool`) and runs the Pi
 extension against a stub `ExtensionAPI` (`pi/stub-test.ts`). Claude Code is also validated live.
-Codex, Cursor, Gemini CLI and Pi are not installed on the build machine, so a live run of each is
-still open; open issue to watch: Codex 0.136.0 did not fire `PostToolUse` for `apply_patch`
+Pi is also validated live as an embedded harness (extension factory in the host app). Codex, Cursor
+and Gemini CLI are not installed on the build machine, so a live run of each is still open; open issue to watch: Codex 0.136.0 did not fire `PostToolUse` for `apply_patch`
 (openai/codex#26729), where `pre-commit` remains the backstop.
 
 ## Older files
