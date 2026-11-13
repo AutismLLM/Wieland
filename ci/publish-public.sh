@@ -2,8 +2,10 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-remote="${1:?usage: ci/publish-public.sh <remote> [message]}"
+remotes="${1:?usage: ci/publish-public.sh <remote[,remote...]> [message]}"
 message="${2:-Sync from the development repository}"
+IFS=, read -r -a remote_list <<<"$remotes"
+remote="${remote_list[0]}"
 pattern="${WIELAND_PRIVATE_PATTERN:-}"
 
 if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
@@ -25,5 +27,7 @@ if [ "$(git rev-parse "$parent^{tree}")" = "$tree" ]; then
     exit 0
 fi
 commit="$(git commit-tree "$tree" -p "$parent" -m "$message")"
-git push "$remote" "$commit:refs/heads/main"
-echo "publish: $remote/main -> $commit (one snapshot commit on top of the public history)"
+for target in "${remote_list[@]}"; do
+    git push "$target" "$commit:refs/heads/main"
+done
+echo "publish: ${remotes} main -> $commit (one snapshot commit on top of the public history)"
