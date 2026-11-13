@@ -15,6 +15,7 @@ mod gate_go;
 mod gate_typescript;
 mod hook;
 mod install;
+mod project_checks;
 mod tools;
 
 const RULES_DIR: &str = "rules";

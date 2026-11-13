@@ -1,6 +1,7 @@
 pub mod compile;
 pub mod corpus;
 pub mod frontmatter;
+pub mod project;
 pub mod rule;
 pub mod taxonomy;
 pub mod validate;
@@ -13,5 +14,6 @@ pub use compile::{
 };
 pub use corpus::{Corpus, CorpusError};
 pub use frontmatter::{parse_rule, section_headings};
+pub use project::{PROJECT_FILE, Project, ProjectCheck, ProjectFile, find_project, parse_project};
 pub use rule::{Detect, Enforceability, Language, Rule, Severity, Tier};
 pub use validate::{Finding, validate_corpus};

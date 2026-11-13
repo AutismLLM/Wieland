@@ -77,6 +77,13 @@ fn gate_and_respond(args: &[String]) -> Option<ExitCode> {
         }
         paths = edited_paths(&input);
     }
+    let project_blocks = match crate::project_checks::for_paths(&paths) {
+        Ok(found) => found,
+        Err(err) => {
+            eprintln!("wieland hook: {err}; skipping project checks");
+            Vec::new()
+        }
+    };
     let sources: Vec<(PathBuf, Language)> = paths
         .into_iter()
         .filter_map(|p| {
@@ -85,7 +92,7 @@ fn gate_and_respond(args: &[String]) -> Option<ExitCode> {
         })
         .collect();
     if sources.is_empty() {
-        return None;
+        return respond(agent, &project_blocks, &[]);
     }
     let Some(rules_dir) = resolve_rules_dir() else {
         eprintln!(
@@ -94,10 +101,13 @@ fn gate_and_respond(args: &[String]) -> Option<ExitCode> {
         return None;
     };
     match check_sources(&rules_dir.to_string_lossy(), &sources) {
-        Ok((blocking, advice)) => respond(agent, &blocking, &advice),
+        Ok((mut blocking, advice)) => {
+            blocking.extend(project_blocks);
+            respond(agent, &blocking, &advice)
+        }
         Err(err) => {
             eprintln!("wieland hook: {err}; skipping");
-            None
+            respond(agent, &project_blocks, &[])
         }
     }
 }

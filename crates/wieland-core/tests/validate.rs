@@ -387,3 +387,24 @@ fn unknown_language_is_a_parse_error() {
     let text = VALID_TS.replace("language: typescript", "language: python");
     assert!(parse_rule(Path::new("f.md"), &text).is_err());
 }
+
+#[test]
+fn project_file_parses_and_matches() {
+    let file = wieland_core::parse_project(
+        "checks:\n  - name: ui\n    run: node tools/ui-check.mjs\n    extensions: [.ts, .css]\n    paths: [src/]\n",
+    )
+    .expect("parses");
+    let check = &file.checks[0];
+    assert_eq!(check.name, "ui");
+    assert!(check.applies_to(Path::new("src/screens/play.ts")));
+    assert!(check.applies_to(Path::new("src/ui/hex.css")));
+    assert!(!check.applies_to(Path::new("tools/build.mjs")));
+    assert!(!check.applies_to(Path::new("src/readme.md")));
+}
+
+#[test]
+fn project_file_rejects_unknown_keys() {
+    assert!(
+        wieland_core::parse_project("checks:\n  - name: ui\n    run: x\n    bogus: 1\n").is_err()
+    );
+}

@@ -213,4 +213,17 @@ if ! python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["patch"]["
 fi
 echo "ok: pi tool_result extension appends findings"
 
+echo "== project checks (wieland.yaml) =="
+pc_out="$(printf '{"tool_name":"Write","tool_input":{"file_path":"%s"}}' "$fixtures/project-bad/src/note.md" | "$wieland" hook 2>&1)" && pc_rc=0 || pc_rc=$?
+if [ "$pc_rc" -ne 2 ] || ! grep -q "\[project:no-forbidden\]" <<<"$pc_out"; then
+    echo "FAIL: a failing project check did not block the edit (got $pc_rc)"
+    echo "$pc_out"
+    exit 1
+fi
+if ! printf '{"tool_name":"Write","tool_input":{"file_path":"%s"}}' "$fixtures/project-good/src/note.md" | "$wieland" hook; then
+    echo "FAIL: a passing project check blocked the edit"
+    exit 1
+fi
+echo "ok: project check blocks project-bad, passes project-good"
+
 echo "== all checks passed =="

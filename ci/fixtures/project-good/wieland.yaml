@@ -1,0 +1,5 @@
+checks:
+  - name: no-forbidden
+    run: "! grep -rq FORBIDDEN src"
+    extensions: [.md]
+    paths: [src/]

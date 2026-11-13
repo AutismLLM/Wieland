@@ -58,6 +58,9 @@ src/bad.ts:34: [async-no-floating-promise] Await, return or explicitly void ever
 gate: 1 violation(s)
 ```
 
+A project can add its own checks in `wieland.yaml` (a command, plus the file extensions and paths it
+covers); the hook runs them on matching edits and a failure blocks as `[project:<name>]`.
+
 Only findings in the edited file block an edit. Project-level findings (a missing compiler option)
 block `gate --all`, the pre-commit hook and CI.
 

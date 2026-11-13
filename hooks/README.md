@@ -21,6 +21,23 @@ gates a file without reading hook JSON (the Pi extension uses it). Input is read
 `file_path` (Cursor `afterFileEdit`) or the `*** Add/Update File:` lines of an `apply_patch`
 (Codex).
 
+## Project checks
+
+A project can add its own checks in a `wieland.yaml` at any directory above the edited file:
+
+```yaml
+checks:
+  - name: ui
+    run: node tools/ui-check.mjs
+    extensions: [.ts, .css]
+    paths: [src/]
+```
+
+The hook runs every check whose `extensions` and `paths` match the edited file (relative to the
+directory holding `wieland.yaml`), once per edit, with `sh -c` in that directory. A non-zero exit
+blocks the edit as `[project:<name>]` with the last 20 lines of output. `gate --all` runs every
+check of the project; `gate --staged` runs the ones matching staged files.
+
 ## Rules every adapter keeps
 
 - Only findings in the edited file block. Project-level findings (a missing required compiler

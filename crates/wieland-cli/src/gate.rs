@@ -84,7 +84,16 @@ pub fn run(rules_dir: &str, args: &[String]) -> ExitCode {
         }
     };
     match check_project(rules_dir, &cwd, &scope) {
-        Ok(report) => print_report(&report),
+        Ok(mut report) => {
+            match crate::project_checks::for_project(&cwd) {
+                Ok(found) => report.blocking.extend(found),
+                Err(err) => {
+                    eprintln!("gate: {err}");
+                    return ExitCode::FAILURE;
+                }
+            }
+            print_report(&report)
+        }
         Err(err) => {
             eprintln!("gate: {err}");
             ExitCode::FAILURE
@@ -115,8 +124,17 @@ fn run_git_scope(rules_dir: &str, scope: &Scope) -> ExitCode {
         println!("gate: no Rust, TypeScript or Go files in scope");
         return ExitCode::SUCCESS;
     }
+    let staged: Vec<PathBuf> = sources.iter().map(|(p, _)| p.clone()).collect();
+    let project_blocks = match crate::project_checks::for_paths(&staged) {
+        Ok(found) => found,
+        Err(err) => {
+            eprintln!("gate: {err}");
+            return ExitCode::FAILURE;
+        }
+    };
     match crate::hook::check_sources(rules_dir, &sources) {
-        Ok((blocking, advice)) => {
+        Ok((mut blocking, advice)) => {
+            blocking.extend(project_blocks);
             if !advice.is_empty() {
                 eprint!("{}", format_advice(&advice));
             }
