@@ -55,3 +55,5 @@ The other rules in this pack assume them. `noUncheckedIndexedAccess` makes `arra
 
 ## Notes
 The gate reads the resolved options with `tsc -p <file> --showConfig`, so values inherited through `extends` count. `strict` is already the default in TypeScript 7; setting it explicitly documents intent.
+
+The flags apply to classic-script configs too (service workers, `moduleDetection: "legacy"`). They do not change the emitted script, and each still catches its mistake there; `isolatedModules` and `verbatimModuleSyntax` cost nothing in a file without imports. There is no per-project opt-out.

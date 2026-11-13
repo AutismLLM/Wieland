@@ -188,4 +188,4 @@ Plan: `spec/GO-STACK.md`.
 - [x] **4. Licence (owner).** MIT, owner yes 2026-11-13. — `LICENSE`, `license = "MIT"` in the workspace.
 - [x] **5. History for the public repo (owner).** Owner yes 2026-11-13. — the public remote now holds one commit (7baa841, current tree, tag `wieland-corpus-90377841a0af` moved onto it); full history stays on `origin`; later syncs go through `ci/publish-public.sh`.
 - [ ] **6. GitHub Actions CI on push.**
-- [ ] **7. Make Beemindapp/Wieland public (owner yes).**
+- [x] **7. Make Beemindapp/Wieland public (owner yes).** — done 2026-11-13 after a final scan of the public tree and its 3 snapshot commits (clean); GitHub reports PUBLIC, licence MIT.
